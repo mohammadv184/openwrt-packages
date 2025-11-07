@@ -225,7 +225,7 @@ jobs:
           ./scripts/feeds install -a || true
       - name: Create repository
         run: |
-          make package/index V=s
+          make package/index V=s -C sdk
           mkdir -p public/packages
           mkdir -p public/keys
           PKGROOT=$(find sdk/bin -type d -name mohammadv184)
