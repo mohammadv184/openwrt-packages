@@ -148,7 +148,10 @@ jobs:
         run: |
           cd sdk
           echo "${USIGN_KEY}" > ./key-build
-          echo "${USIGN_PUB}" > ./key-build.pub      
+          echo "${USIGN_PUB}" > ./key-build.pub
+        env:
+          USIGN_KEY: ${{ secrets.USIGN_KEY }}
+          USIGN_PUB: ${{ vars.USIGN_PUB }}        
 
       - name: Build packages
         run: |
