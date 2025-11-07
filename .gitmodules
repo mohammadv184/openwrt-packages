@@ -1,0 +1,3 @@
+[submodule "openwrt-arvancloud-cloudlogs"]
+	path = openwrt-arvancloud-cloudlogs
+	url = https://github.com/mohammadv184/openwrt-arvancloud-cloudlogs
