@@ -146,14 +146,13 @@ jobs:
           ./scripts/feeds install -a || true
       - name: Install key
         run: |
-          cd openwrt
+          cd sdk
           echo "${USIGN_KEY}" > ./key-build
           echo "${USIGN_PUB}" > ./key-build.pub      
 
       - name: Build packages
         run: |
           cd sdk
-          cd openwrt
           for PKG in $(ls ./package/feeds/mohammadv184/); do
             echo CONFIG_PACKAGE_"$PKG"=m >> .config
           done
@@ -167,10 +166,10 @@ jobs:
         run: |
           mkdir -p public/packages
           mkdir -p public/keys
-          PKGROOT=$(find openwrt/bin -type d -name mohammadv184)
+          PKGROOT=$(find sdk/bin -type d -name mohammadv184)
           cp -r "$PKGROOT/"* public/packages
-          cp ./openwrt/feeds/mohammadv184/README.md ./public/
-          cp ./openwrt/key-build.pub ./public/keys/$(./openwrt/staging_dir/host/bin/usign -F -s ./openwrt/key-build)
+          cp ./sdk/feeds/mohammadv184/README.md ./public/
+          cp ./sdk/key-build.pub ./public/keys/$(./sdk/staging_dir/host/bin/usign -F -s ./sdk/key-build)
 
       - name: Deploy repository
         if: success()
