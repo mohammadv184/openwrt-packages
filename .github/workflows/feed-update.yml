@@ -1,0 +1,185 @@
+name: Repository Feed Update
+on:
+  push:
+    branches:
+      - master
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: x86_64
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/x86/64/openwrt-sdk-24.10.4-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: aarch64_generic
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/rockchip/armv8/openwrt-sdk-24.10.4-rockchip-armv8_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: aarch64_cortex-a53
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/mvebu/cortexa53/openwrt-sdk-24.10.4-mvebu-cortexa53_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: aarch64_cortex-a72
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/mvebu/cortexa72/openwrt-sdk-24.10.4-mvebu-cortexa72_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: arm_cortex-a5_vfpv4
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/at91/sama5/openwrt-sdk-24.10.4-at91-sama5_gcc-13.3.0_musl_eabi.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: arm_cortex-a7
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/mediatek/mt7629/openwrt-sdk-24.10.4-mediatek-mt7629_gcc-13.3.0_musl_eabi.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: arm_cortex-a7_neon-vfpv4
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/sunxi/cortexa7/openwrt-sdk-24.10.4-sunxi-cortexa7_gcc-13.3.0_musl_eabi.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: arm_cortex-a8_vfpv3
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/sunxi/cortexa8/openwrt-sdk-24.10.4-sunxi-cortexa8_gcc-13.3.0_musl_eabi.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: arm_cortex-a9
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/bcm53xx/generic/openwrt-sdk-24.10.4-bcm53xx-generic_gcc-13.3.0_musl_eabi.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: arm_cortex-a9_neon
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/zynq/generic/openwrt-sdk-24.10.4-zynq-generic_gcc-13.3.0_musl_eabi.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: arm_cortex-a9_vfpv3-d16
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/mvebu/cortexa9/openwrt-sdk-24.10.4-mvebu-cortexa9_gcc-13.3.0_musl_eabi.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: arm_cortex-a15_neon-vfpv4
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/ipq806x/generic/openwrt-sdk-24.10.4-ipq806x-generic_gcc-13.3.0_musl_eabi.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: mips_24kc
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/ath79/generic/openwrt-sdk-24.10.4-ath79-generic_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: mips_4kec
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/realtek/rtl838x/openwrt-sdk-24.10.4-realtek-rtl838x_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: mips_mips32
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/bcm53xx/generic/openwrt-sdk-24.10.4-bcm53xx-generic_gcc-13.3.0_musl_eabi.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: mipsel_24kc
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/ramips/rt288x/openwrt-sdk-24.10.4-ramips-rt288x_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: mipsel_74kc
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/ramips/rt3883/openwrt-sdk-24.10.4-ramips-rt3883_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+
+          - platform: mipsel_mips32
+            url_sdk: https://downloads.openwrt.org/releases/24.10.4/targets/bcm47xx/generic/openwrt-sdk-24.10.4-bcm47xx-generic_gcc-13.3.0_musl.Linux-x86_64.tar.zst
+            sdk_ver: "24.10"
+        steps:
+          - name: Install dependencies
+            run: |
+              sudo apt-get update
+              sudo apt-get install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+                bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
+                g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
+                libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libpython3-dev \
+                libreadline-dev libssl-dev libtool libyaml-dev libz-dev lld llvm lrzsz mkisofs msmtp nano \
+                ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip python3-ply python3-docutils \
+                python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs \
+                upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
+          - name: Checkout code
+            uses: actions/checkout@v4
+
+          - name: Extract version from tag
+            if: startsWith(github.ref, 'refs/tags/v')
+            id: version
+            run: |
+              VERSION=${GITHUB_REF#refs/tags/v}
+              echo "version=$VERSION" >> $GITHUB_OUTPUT
+              echo "PKG_VERSION=$VERSION" >> $GITHUB_ENV
+
+          - name: Setup OpenWrt SDK
+            run: |
+              mkdir -p packages/arvancloud-cloudlogs
+              rsync -av --exclude 'packages' ./ packages/arvancloud-cloudlogs
+              
+              wget ${{ matrix.url_sdk }} -O sdk.tar.xz || {
+                echo "Failed to download SDK for ${{ matrix.platform }}"
+                exit 1
+              }
+              
+              tar -xf sdk.tar.xz
+              mv openwrt-sdk-* sdk
+              
+              # Verify SDK structure
+              if [ ! -d "sdk" ]; then
+                echo "Error: SDK directory not found after extraction"
+                exit 1
+              fi
+              
+              echo "SDK_PATH=$(pwd)/sdk" >> $GITHUB_ENV
+              echo "SDK setup complete"
+              
+              cat > sdk/feeds.conf << EOF
+              src-git base https://github.com/openwrt/openwrt.git;openwrt-${{ matrix.sdk_ver }}
+              src-git packages https://github.com/openwrt/packages.git;openwrt-${{ matrix.sdk_ver }}
+              src-git routing https://github.com/openwrt/routing.git;openwrt-${{ matrix.sdk_ver }}
+              src-git telephony https://github.com/openwrt/telephony.git;openwrt-${{ matrix.sdk_ver }}
+              src-git mohammadv184 https://github.com/mohammadv184/openwrt-packages
+              EOF
+              
+              cat sdk/feeds.conf
+          - name: Update feeds
+            run: |
+              cd sdk
+              ./scripts/feeds update -a
+
+          - name: Install package dependencies
+            run: |
+              cd sdk
+              ./scripts/feeds install -a || true
+          - name: Install key
+            run: |
+              cd openwrt
+              echo "${USIGN_KEY}" > ./key-build
+              echo "${USIGN_PUB}" > ./key-build.pub      
+
+          - name: Build packages
+            run: |
+              cd sdk
+              cd openwrt
+              for PKG in $(ls ./package/feeds/mohammadv184/); do
+                echo CONFIG_PACKAGE_"$PKG"=m >> .config
+              done
+              make defconfig
+
+              for PKG in $(ls ./package/feeds/mohammadv184/); do
+                IGNORE_ERRORS=1 make -j$(nproc) package/"$PKG"/compile
+              done
+              make package/index
+          - name: Create repository
+            run: |
+              mkdir -p public/packages
+              mkdir -p public/keys
+              PKGROOT=$(find openwrt/bin -type d -name mohammadv184)
+              cp -r "$PKGROOT/"* public/packages
+              cp ./openwrt/feeds/mohammadv184/README.md ./public/
+              cp ./openwrt/key-build.pub ./public/keys/$(./openwrt/staging_dir/host/bin/usign -F -s ./openwrt/key-build)
+
+          - name: Deploy repository
+            if: success()
+            uses: crazy-max/ghaction-github-pages@v2
+            with:
+              target_branch: gh-pages
+              build_dir: public
+              commit_message: Deploy repository
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
