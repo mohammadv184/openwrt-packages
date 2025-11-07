@@ -193,7 +193,6 @@ jobs:
         run: |
           rm -rf public || true
           mkdir -p public/packages
-          mkdir -p public/keys
           for A in artifacts/packages-*; do
             [ -d "$A" ] || continue
             PLATFORM=${A#artifacts/packages-}
@@ -202,5 +201,14 @@ jobs:
               mkdir -p public/packages/"$PLATFORM"
               cp -r "$A/public/packages/"* public/packages/"$PLATFORM"/ || true
             fi
+            cp -r "$A/public/public.key" public/ || true
           done
           ls -la public || true
+      - name: Deploy repository
+        uses: crazy-max/ghaction-github-pages@v2
+        with:
+          target_branch: gh-pages
+          build_dir: public
+          commit_message: Deploy repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
