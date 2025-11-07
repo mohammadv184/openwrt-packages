@@ -99,13 +99,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Extract version from tag
-        if: startsWith(github.ref, 'refs/tags/v')
-        id: version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "PKG_VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Setup OpenWrt SDK
         run: |
@@ -151,7 +144,7 @@ jobs:
           echo "${USIGN_PUB}" > ./key-build.pub
         env:
           USIGN_KEY: ${{ secrets.USIGN_KEY }}
-          USIGN_PUB: ${{ vars.USIGN_PUB }}        
+          USIGN_PUB: ${{ vars.USIGN_PUB }}
 
       - name: Build packages
         run: |
@@ -164,22 +157,78 @@ jobs:
           for PKG in $(ls ./package/feeds/mohammadv184/); do
             IGNORE_ERRORS=1 make -j$(nproc) package/"$PKG"/compile
           done
-          make package/index V=s
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ matrix.platform }}
+          path: sdk/bin/packages
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+            bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
+            g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
+            libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libpython3-dev \
+            libreadline-dev libssl-dev libtool libyaml-dev libz-dev lld llvm lrzsz mkisofs msmtp nano \
+            ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip python3-ply python3-docutils \
+            python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs \
+            upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
+      - name: Setup OpenWrt SDK
+        run: |
+          wget ${{ inputs.url_sdk }} -O sdk.tar.xz || {
+            echo "Failed to download SDK"
+            exit 1
+          }
+
+          tar -xf sdk.tar.xz
+          mv openwrt-sdk-* sdk
+
+          # Verify SDK structure
+          if [ ! -d "sdk" ]; then
+            echo "Error: SDK directory not found after extraction"
+            exit 1
+          fi
+
+          echo "SDK_PATH=$(pwd)/sdk" >> $GITHUB_ENV
+          echo "SDK setup complete"
+
+          cat > sdk/feeds.conf << EOF
+          src-git base https://github.com/openwrt/openwrt.git;openwrt-${{ inputs.sdk_ver }}
+          src-git packages https://github.com/openwrt/packages.git;openwrt-${{ inputs.sdk_ver }}
+          src-git routing https://github.com/openwrt/routing.git;openwrt-${{ inputs.sdk_ver }}
+          src-git telephony https://github.com/openwrt/telephony.git;openwrt-${{ inputs.sdk_ver }}
+          src-git mohammadv184 https://github.com/mohammadv184/openwrt-packages
+          EOF
+
+          cat sdk/feeds.conf
+        with:
+          url_sdk: "https://downloads.openwrt.org/releases/24.10.4/targets/x86/64/openwrt-sdk-24.10.4-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
+          sdk_ver: "24.10"
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          path: sdk/bin/packages
+      - name: Update feeds
+        run: |
+          cd sdk
+          ./scripts/feeds update -a
+
+      - name: Install package dependencies
+        run: |
+          cd sdk
+          ./scripts/feeds install -a || true    
       - name: Create repository
         run: |
+          make package/index V=s
           mkdir -p public/packages
           mkdir -p public/keys
           PKGROOT=$(find sdk/bin -type d -name mohammadv184)
           cp -r "$PKGROOT/"* public/packages
           cp ./sdk/feeds/mohammadv184/README.md ./public/
           cp ./sdk/key-build.pub ./public/keys/$(./sdk/staging_dir/host/bin/usign -F -s ./sdk/key-build)
-
-      - name: Deploy repository
-        if: success()
-        uses: crazy-max/ghaction-github-pages@v2
-        with:
-          target_branch: gh-pages
-          build_dir: public
-          commit_message: Deploy repository
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
