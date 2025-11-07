@@ -157,11 +157,12 @@ jobs:
             echo CONFIG_PACKAGE_"$PKG"=m >> .config
           done
           make defconfig
-
+          
+          make package/system/usign/host/compile
           for PKG in $(ls ./package/feeds/mohammadv184/); do
             IGNORE_ERRORS=1 make -j$(nproc) package/"$PKG"/compile
           done
-          make package/index
+          make package/index V=s
       - name: Create repository
         run: |
           mkdir -p public/packages
