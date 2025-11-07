@@ -232,3 +232,12 @@ jobs:
           cp -r "$PKGROOT/"* public/packages
           cp ./sdk/feeds/mohammadv184/README.md ./public/
           cp ./sdk/key-build.pub ./public/keys/$(./sdk/staging_dir/host/bin/usign -F -s ./sdk/key-build)
+          echo "openwrt.mohammad-abbasi.me" > public/CNAME
+      - name: Deploy repository
+        uses: crazy-max/ghaction-github-pages@v2
+        with:
+          target_branch: gh-pages
+          build_dir: public
+          commit_message: Deploy repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
