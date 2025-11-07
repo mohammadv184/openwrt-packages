@@ -222,7 +222,7 @@ jobs:
         env:
           USIGN_KEY: ${{ secrets.USIGN_KEY }}
           USIGN_PUB: ${{ vars.USIGN_PUB }}
-      
+
       - name: Create repository
         run: |
           cd sdk
@@ -231,7 +231,7 @@ jobs:
           done
           make defconfig
           
-          make package/index V=s -C 
+          make package/index V=s 
           cd ..
           mkdir -p public/packages
           mkdir -p public/keys
