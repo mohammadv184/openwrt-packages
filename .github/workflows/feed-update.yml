@@ -137,15 +137,6 @@ jobs:
         run: |
           cd sdk
           ./scripts/feeds install -a || true
-      - name: Install key
-        run: |
-          cd sdk
-          echo "${USIGN_KEY}" > ./key-build
-          echo "${USIGN_PUB}" > ./key-build.pub
-        env:
-          USIGN_KEY: ${{ secrets.USIGN_KEY }}
-          USIGN_PUB: ${{ vars.USIGN_PUB }}
-
       - name: Build packages
         run: |
           cd sdk
@@ -223,9 +214,25 @@ jobs:
         run: |
           cd sdk
           ./scripts/feeds install -a || true
+      - name: Install key
+        run: |
+          cd sdk
+          echo "${USIGN_KEY}" > ./key-build
+          echo "${USIGN_PUB}" > ./key-build.pub
+        env:
+          USIGN_KEY: ${{ secrets.USIGN_KEY }}
+          USIGN_PUB: ${{ vars.USIGN_PUB }}
+      
       - name: Create repository
         run: |
-          make package/index V=s -C sdk
+          cd sdk
+          for PKG in $(ls ./package/feeds/mohammadv184/); do
+            echo CONFIG_PACKAGE_"$PKG"=m >> .config
+          done
+          make defconfig
+          
+          make package/index V=s -C 
+          cd ..
           mkdir -p public/packages
           mkdir -p public/keys
           PKGROOT=$(find sdk/bin -type d -name mohammadv184)
