@@ -181,7 +181,7 @@ jobs:
             upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
       - name: Setup OpenWrt SDK
         run: |
-          wget ${{ inputs.url_sdk }} -O sdk.tar.xz || {
+          wget ${{ env.url_sdk }} -O sdk.tar.xz || {
             echo "Failed to download SDK"
             exit 1
           }
@@ -199,15 +199,15 @@ jobs:
           echo "SDK setup complete"
 
           cat > sdk/feeds.conf << EOF
-          src-git base https://github.com/openwrt/openwrt.git;openwrt-${{ inputs.sdk_ver }}
-          src-git packages https://github.com/openwrt/packages.git;openwrt-${{ inputs.sdk_ver }}
-          src-git routing https://github.com/openwrt/routing.git;openwrt-${{ inputs.sdk_ver }}
-          src-git telephony https://github.com/openwrt/telephony.git;openwrt-${{ inputs.sdk_ver }}
+          src-git base https://github.com/openwrt/openwrt.git;openwrt-${{ env.sdk_ver }}
+          src-git packages https://github.com/openwrt/packages.git;openwrt-${{ env.sdk_ver }}
+          src-git routing https://github.com/openwrt/routing.git;openwrt-${{ env.sdk_ver }}
+          src-git telephony https://github.com/openwrt/telephony.git;openwrt-${{ env.sdk_ver }}
           src-git mohammadv184 https://github.com/mohammadv184/openwrt-packages
           EOF
 
           cat sdk/feeds.conf
-        with:
+        env:
           url_sdk: "https://downloads.openwrt.org/releases/24.10.4/targets/x86/64/openwrt-sdk-24.10.4-x86-64_gcc-13.3.0_musl.Linux-x86_64.tar.zst"
           sdk_ver: "24.10"
       - name: Download build artifact
@@ -222,7 +222,7 @@ jobs:
       - name: Install package dependencies
         run: |
           cd sdk
-          ./scripts/feeds install -a || true    
+          ./scripts/feeds install -a || true
       - name: Create repository
         run: |
           make package/index V=s
