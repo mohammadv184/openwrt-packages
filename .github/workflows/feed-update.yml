@@ -168,7 +168,6 @@ jobs:
       - name: Create repository
         run: |
           mkdir -p public/packages
-          mkdir -p public/keys
           PKGROOT=$(find sdk/bin -type d -name mohammadv184)
           cp -r "$PKGROOT/"* public/packages
           cp ./sdk/feeds/mohammadv184/README.md ./public/
@@ -197,11 +196,11 @@ jobs:
             [ -d "$A" ] || continue
             PLATFORM=${A#artifacts/packages-}
             # copy built packages into a platform-specific subdir
-            if [ -d "$A/public/packages" ]; then
+            if [ -d "$A/packages" ]; then
               mkdir -p public/packages/"$PLATFORM"
-              cp -r "$A/public/packages/"* public/packages/"$PLATFORM"/ || true
+              cp -r "$A/packages/"* public/packages/"$PLATFORM"/ || true
             fi
-            cp -r "$A/public/public.key" public/ || true
+            cp -r "$A/public.key" public/ || true
           done
           ls -la public || true
       - name: Deploy repository
@@ -211,4 +210,4 @@ jobs:
           build_dir: public
           commit_message: Deploy repository
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
