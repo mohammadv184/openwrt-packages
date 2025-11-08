@@ -202,6 +202,7 @@ jobs:
             fi
             cp -r "$A/public.key" public/ || true
           done
+          echo "openwrt.mohammad-abbasi.me" > ./public/CNAME
           ls -la public || true
       - name: Deploy repository
         uses: crazy-max/ghaction-github-pages@v2
