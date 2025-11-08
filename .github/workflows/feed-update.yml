@@ -200,7 +200,8 @@ jobs:
               mkdir -p public/packages/"$PLATFORM"
               cp -r "$A/packages/"* public/packages/"$PLATFORM"/ || true
             fi
-            cp -r "$A/public.key" public/ || true
+            cp  "$A/public.key" public/ || true
+            cp  "$A/README.md" public/ || true
           done
           echo "openwrt.mohammad-abbasi.me" > ./public/CNAME
           ls -la public || true
