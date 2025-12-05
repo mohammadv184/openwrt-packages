@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "architecture": "arm_cortex-a9",
+  "packages": {
+    "arvancloud-cloudlogs": "0.1.1-r1"
+  }
+}

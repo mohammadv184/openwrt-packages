@@ -1,0 +1,1 @@
+{"serialNumber":"urn:uuid:7bdf0a0e-8c9f-46ef-bcd4-f8bf28737d85","version":1,"metadata":{"timestamp":"2025-12-04T23:57:23Z"},"bomFormat":"CycloneDX","components":[{"name":"arvancloud-cloudlogs","licenses":[{"license":{"name":"MIT"}}],"type":"application","version":"0.1.1"}],"specVersion":"1.4"}

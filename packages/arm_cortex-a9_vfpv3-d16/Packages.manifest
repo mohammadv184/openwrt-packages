@@ -1,0 +1,18 @@
+Package: arvancloud-cloudlogs
+Version: 0.1.1-r1
+Depends: libc, libubus20250102, libubox20240329, libcurl4
+Source: feeds/mohammadv184/openwrt-arvancloud-cloudlogs
+SourceName: arvancloud-cloudlogs
+License: MIT
+LicenseFiles: LICENSE
+Section: utils
+SourceDateEpoch: 1764891384
+URL: https://github.com/mohammadv184/openwrt-arvancloud-cloudlogs
+Maintainer: Mohammad Abbasi <mohammad.v184@gmail.com>
+Architecture: arm_cortex-a9_vfpv3-d16
+Installed-Size: 30720
+Filename: arvancloud-cloudlogs_0.1.1-r1_arm_cortex-a9_vfpv3-d16.ipk
+Size: 9239
+SHA256sum: daa89bfbbfd047c4f037fda7d949d8d9ad7a7617a890a4309336abe31dd19ea8
+Description:  A small daemon that subscribes to logd via ubus and forwards logs to ArvanCloud CloudLogs service.
+
